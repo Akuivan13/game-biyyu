@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selamat Datang di Game Sains, Selamat Bermain!</title>
+    <style>
+        /* CSS Styling */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #ffff00;
+            color: #000000;
+            animation: fadeIn ease 2s;
+        }
+        @keyframes fadeIn {
+            0% {opacity: 0;}
+            100% {opacity: 1;}
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        #question {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #choices {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .choice {
+            flex: 1 0 100px;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .choice:hover {
+            background-color: #ddd;
+        }
+        #feedback {
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #000000;
+            color: #ffffff;
+            padding: 10px 0;
+        }
+
+        /* Responsif */
+        @media screen and (max-width: 600px) {
+            .choice {
+                flex: 1 0 50%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Selamat Datang di Game Sains, Selamat Bermain!</h1>
+    <div id="question"></div>
+    <div id="choices"></div>
+    <div id="feedback"></div>
+
+    <script>
+ // Array pertanyaan dan jawaban
+var pertanyaan = [
+    {
+        question: "Apa simbol kimia untuk air?",
+        choices: ["H2O", "CO2", "NaCl", "O2"],
+        correctAnswer: "H2O"
+    },
+    {
+        question: "Planet mana yang dikenal sebagai Planet Merah?",
+        choices: ["Venus", "Mars", "Jupiter", "Saturnus"],
+        correctAnswer: "Mars"
+    },
+    {
+        question: "Apa yang disebut sebagai pembangkit tenaga dalam sel?",
+        choices: ["Inti", "Mitokondria", "Ribosom", "Retikulum endoplasma"],
+        correctAnswer: "Mitokondria"
+    },
+    {
+        question: "Apa yang merupakan cairan hijau yang dihasilkan oleh tumbuhan untuk proses fotosintesis?",
+        choices: ["Klorofil", "Karoten", "Hemoglobin", "Kromium"],
+        correctAnswer: "Klorofil"
+    },
+    {
+        question: "Siapakah penemu teori relativitas umum?",
+        choices: ["Albert Einstein", "Isaac Newton", "Galileo Galilei", "Nikola Tesla"],
+        correctAnswer: "Albert Einstein"
+    },
+    {
+        question: "Apa yang merupakan komponen terbesar dari atmosfer Bumi?",
+        choices: ["Nitrogen", "Oksigen", "Karbon dioksida", "Argon"],
+        correctAnswer: "Nitrogen"
+    },
+    {
+        question: "Apa zat kimia yang dihasilkan oleh tumbuhan saat fotosintesis dan diperlukan oleh manusia untuk bernapas?",
+        choices: ["Oksigen", "Karbon dioksida", "Hidrogen", "Helium"],
+        correctAnswer: "Oksigen"
+    },
+    {
+        question: "Siapakah ilmuwan yang menemukan hukum gravitasi?",
+        choices: ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "Nikola Tesla"],
+        correctAnswer: "Isaac Newton"
+    },
+    {
+        question: "Apa nama proses di mana tumbuhan menghasilkan energi dari cahaya matahari?",
+        choices: ["Fotosintesis", "Respirasi", "Metabolisme", "Transpirasi"],
+        correctAnswer: "Fotosintesis"
+    },
+    {
+        question: "Apa nama planet terbesar di Tata Surya?",
+        choices: ["Jupiter", "Saturnus", "Uranus", "Neptunus"],
+        correctAnswer: "Jupiter"
+    },
+    {
+        question: "Apa simbol kimia untuk emas?",
+        choices: ["Fe", "Ag", "Au", "Pb"],
+        correctAnswer: "Au"
+    },
+    {
+        question: "Berapa jumlah planet dalam Tata Surya?",
+        choices: ["7", "8", "9", "10"],
+        correctAnswer: "8"
+    }
+
+            // Tambahkan pertanyaan lainnya disini
+        ];
+
+        // Variabel untuk melacak pertanyaan saat ini, skor, dan waktu
+        var indeksPertanyaanSaatIni = 0;
+        var skor = 0;
+        var waktuJawab = 10; // Waktu dalam detik
+        var countdownInterval;
+
+        // Menampilkan pertanyaan dan pilihan
+        function tampilkanPertanyaan() {
+            resetCountdown();
+            var pertanyaanSekarang = pertanyaan[indeksPertanyaanSaatIni];
+            document.getElementById('question').innerText = pertanyaanSekarang.question;
+            document.getElementById('feedback').innerText = ''; // Membersihkan teks jawaban sebelumnya
+
+            var pilihanContainer = document.getElementById('choices');
+            pilihanContainer.innerHTML = '';
+            pertanyaanSekarang.choices.forEach(function(pilihan) {
+                var pilihanElement = document.createElement('div');
+                pilihanElement.className = 'choice';
+                pilihanElement.innerText = pilihan;
+                pilihanElement.onclick = function() {
+                    periksaJawaban(pilihan);
+                };
+                pilihanContainer.appendChild(pilihanElement);
+            });
+
+            // Mulai hitung mundur waktu jawab
+            startCountdown();
+        }
+
+        // Memeriksa jawaban
+        function periksaJawaban(pilihanPengguna) {
+            clearInterval(countdownInterval); // Hentikan countdown saat pengguna memilih jawaban
+            var pertanyaanSekarang = pertanyaan[indeksPertanyaanSaatIni];
+            var feedback = document.getElementById('feedback');
+
+            if (pilihanPengguna === pertanyaanSekarang.correctAnswer) {
+                feedback.innerText = "Benar!";
+                skor++;
+            } else {
+                feedback.innerText = "Salah. Jawaban yang benar adalah " + pertanyaanSekarang.correctAnswer;
+            }
+
+            // Tidak mengubah skor jika permainan sudah berakhir
+            if (indeksPertanyaanSaatIni < pertanyaan.length - 1) {
+                indeksPertanyaanSaatIni++;
+                setTimeout(tampilkanPertanyaan, 2000); // Tampilkan pertanyaan berikutnya setelah 2 detik
+            } else {
+                akhiriPermainan();
+            }
+        }
+
+        // Mengakhiri permainan dan menampilkan skor
+        function akhiriPermainan() {
+            var feedback = document.getElementById('feedback');
+            feedback.innerText = "Permainan Selesai. Skor Anda adalah " + skor + "/" + pertanyaan.length;
+            document.getElementById('choices').innerHTML = '';
+        }
+
+        // Memulai hitung mundur waktu jawab
+        function startCountdown() {
+            var waktuSisa = waktuJawab;
+            countdownInterval = setInterval(function() {
+                waktuSisa--;
+                document.getElementById('feedback').innerText = 'Waktu Tersisa: ' + waktuSisa + ' detik';
+
+                if (waktuSisa <= 0) {
+                    clearInterval(countdownInterval);
+                    periksaJawaban(null); // Otomatis menjawab salah jika waktu habis
+                }
+            }, 1000);
+        }
+
+        // Mengatur ulang countdown saat pertanyaan berubah
+        function resetCountdown() {
+            clearInterval(countdownInterval);
+            document.getElementById('feedback').innerText = ''; // Hapus teks waktu sisa
+        }
+
+        // Memulai permainan
+        tampilkanPertanyaan();
+    </script>
+    <footer>
+        Game Sains oleh M Dzaky Al Abiyyu
+    </footer>
+
+</body>
+</html>
